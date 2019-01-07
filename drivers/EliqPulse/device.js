@@ -17,7 +17,7 @@ class EliqPulseDevice extends Homey.Device {
     }
 
     async fetchMeasurePower() {
-        let sum_devices_measure_power = await calcSumDevicesMeasurePower();
+        let sum_devices_measure_power = await this.calcSumDevicesMeasurePower();
 
         pulse.getPulse()
             .then(result => {
