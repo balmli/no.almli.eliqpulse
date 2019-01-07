@@ -26,6 +26,7 @@ class EliqPulseDevice extends Homey.Device {
                 this.setCapabilityValue("measure_power", total_measure_power).catch(console.error);
                 let other_measure_power = total_measure_power - sum_devices_measure_power > 0 ? total_measure_power - sum_devices_measure_power : 0;
                 this.log('other_measure_power', other_measure_power);
+                this.setCapabilityValue("other_measure_power", other_measure_power).catch(console.error);
                 this.scheduleMeasurePower(5);
             })
             .catch(err => {
@@ -41,7 +42,14 @@ class EliqPulseDevice extends Homey.Device {
     async fetchMeterPower() {
         pulse.getTrends()
             .then(result => {
-                let meterPower = Math.round(1000 * result.trend.sofar_day) / 1000;
+                let meterPower = null;
+                if (result.data_this_period) {
+                    if (result.data_this_period.length > 1) {
+                        meterPower = result.data_this_period[result.data_this_period.length - 2] / 1000;
+                    } else if (result.data_this_period.length > 0) {
+                        meterPower = result.data_this_period[result.data_this_period.length - 1] / 1000;
+                    }
+                }
                 this.log('meter_power', meterPower);
                 this.setCapabilityValue("meter_power", meterPower).catch(console.error);
                 this.scheduleMeterPower(120);
@@ -55,15 +63,28 @@ class EliqPulseDevice extends Homey.Device {
     async calcSumDevicesMeasurePower() {
         let currentHomey = await HomeyAPI.forCurrentHomey();
         let devices = await currentHomey.devices.getDevices();
-        let sum_devices_measure_power = 0;
+        let sum_devices = 0;
+        let heating_measure_power = 0;
+        let water_measure_power = 0;
         for (let device in devices) {
             let d = devices[device];
             if (d.capabilitiesObj.measure_power && d.driverUri !== 'homey:app:no.almli.eliqpulse') {
-                sum_devices_measure_power += Math.round(100 * d.capabilitiesObj.measure_power.value) / 100;
+                let power = Math.round(100 * d.capabilitiesObj.measure_power.value) / 100;
+                sum_devices += power;
+                if (d.virtualClass === 'heater' && d.class === 'socket' || d.class === 'thermostat') {
+                    heating_measure_power += power;
+                } else if (d.name === 'Varmtvann' && d.class === 'socket') {
+                    water_measure_power += power;
+                }
+                console.log(d.name, d.virtualClass, d.class, d.capabilitiesObj.measure_power.value);
             }
         }
-        this.log('sum_devices_measure_power', sum_devices_measure_power);
-        return sum_devices_measure_power;
+        this.log('heating_measure_power', heating_measure_power);
+        this.setCapabilityValue("heating_measure_power", heating_measure_power).catch(console.error);
+        this.log('water_measure_power', water_measure_power);
+        this.setCapabilityValue("water_measure_power", water_measure_power).catch(console.error);
+        this.log('sum_devices', sum_devices);
+        return sum_devices;
     }
 
 }

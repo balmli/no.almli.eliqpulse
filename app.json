@@ -47,8 +47,41 @@
       "class": "other",
       "capabilities": [
         "measure_power",
+        "heating_measure_power",
+        "water_measure_power",
+        "other_measure_power",
         "meter_power"
       ],
+      "capabilitiesOptions": {
+        "measure_power": {
+          "title": {
+            "en": "Total"
+          }
+        },
+        "heating_measure_power": {
+          "title": {
+            "en": "Heating"
+          }
+        },
+        "water_measure_power": {
+          "title": {
+            "en": "Water"
+          }
+        },
+        "other_measure_power": {
+          "title": {
+            "en": "Other"
+          }
+        },
+        "meter_power": {
+          "title": {
+            "en": "Meter yesterday"
+          },
+          "units": {
+            "en":  "kWh"
+          }
+        }
+      },
       "mobile": {
         "components": [
           {
@@ -59,7 +92,8 @@
             "id": "sensor",
             "capabilities": [
               "measure_power",
-              "meter_power"
+              "meter_power",
+              "other_measure_power"
             ]
           }
         ]
@@ -82,5 +116,88 @@
         "small": "/drivers/EliqPulse/assets/images/small.png"
       }
     }
-  ]
+  ],
+  "capabilities": {
+    "heating_measure_power": {
+      "type": "number",
+      "title": {
+        "en": "Heating"
+      },
+      "units": {
+        "en": "W"
+      },
+      "insights": true,
+      "desc": {
+        "en": "Power in Watt (W)"
+      },
+      "options": {
+        "isGenerator": {
+          "type": "boolean",
+          "default": false,
+          "desc": {
+            "en": "This flag is used to determine whether this devices uses or generates power."
+          }
+        }
+      },
+      "chartType": "stepLine",
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    },
+    "water_measure_power": {
+      "type": "number",
+      "title": {
+        "en": "Water"
+      },
+      "units": {
+        "en": "W"
+      },
+      "insights": true,
+      "desc": {
+        "en": "Power in Watt (W)"
+      },
+      "options": {
+        "isGenerator": {
+          "type": "boolean",
+          "default": false,
+          "desc": {
+            "en": "This flag is used to determine whether this devices uses or generates power."
+          }
+        }
+      },
+      "chartType": "stepLine",
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    },
+    "other_measure_power": {
+      "type": "number",
+      "title": {
+        "en": "Other"
+      },
+      "units": {
+        "en": "W"
+      },
+      "insights": true,
+      "desc": {
+        "en": "Power in Watt (W)"
+      },
+      "options": {
+        "isGenerator": {
+          "type": "boolean",
+          "default": false,
+          "desc": {
+            "en": "This flag is used to determine whether this devices uses or generates power."
+          }
+        }
+      },
+      "chartType": "stepLine",
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    }
+  }
 }
