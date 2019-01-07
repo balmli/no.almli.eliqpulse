@@ -53,20 +53,17 @@ class EliqPulseDevice extends Homey.Device {
     }
 
     async calcSumDevicesMeasurePower() {
-        return 0;
-        /*
         let currentHomey = await HomeyAPI.forCurrentHomey();
         let devices = await currentHomey.devices.getDevices();
         let sum_devices_measure_power = 0;
         for (let device in devices) {
             let d = devices[device];
-            if (d.capabilitiesObj.measure_power) {
-                sum_devices_measure_power += d.capabilitiesObj.measure_power.value;
+            if (d.capabilitiesObj.measure_power && d.driverUri !== 'homey:app:no.almli.eliqpulse') {
+                sum_devices_measure_power += Math.round(100 * d.capabilitiesObj.measure_power.value) / 100;
             }
         }
         this.log('sum_devices_measure_power', sum_devices_measure_power);
         return sum_devices_measure_power;
-        */
     }
 
 }
