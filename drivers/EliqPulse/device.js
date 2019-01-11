@@ -12,11 +12,20 @@ class EliqPulseDevice extends Homey.Device {
         this.scheduleMeterPower(10);
     }
 
+    clearMeasurePower() {
+        if (this.timeoutMeasurePower) {
+            clearTimeout(this.timeoutMeasurePower);
+            this.timeoutMeasurePower = undefined;
+        }
+    }
+
     scheduleMeasurePower(seconds) {
-        setTimeout(this.fetchMeasurePower.bind(this), seconds * 1000);
+        this.clearMeasurePower();
+        this.timeoutMeasurePower = setTimeout(this.fetchMeasurePower.bind(this), seconds * 1000);
     }
 
     async fetchMeasurePower() {
+        this.clearMeasurePower();
         let measured_power = await this.calcMeasuredPower();
         this.log('measured_power', measured_power);
 
@@ -37,11 +46,20 @@ class EliqPulseDevice extends Homey.Device {
             });
     }
 
+    clearMeterPower() {
+        if (this.timeoutMeterPower) {
+            clearTimeout(this.timeoutMeterPower);
+            this.timeoutMeterPower = undefined;
+        }
+    }
+
     scheduleMeterPower(seconds) {
-        setTimeout(this.fetchMeterPower.bind(this), seconds * 1000);
+        this.clearMeterPower();
+        this.timeoutMeterPower = setTimeout(this.fetchMeterPower.bind(this), seconds * 1000);
     }
 
     async fetchMeterPower() {
+        this.clearMeterPower();
         pulse.getTrends()
             .then(result => {
                 let meterPower = null;
