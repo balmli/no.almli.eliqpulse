@@ -8,6 +8,11 @@ class EliqPulseDevice extends Homey.Device {
 
     onInit() {
         this.log('Device has been initialized', this.getName());
+
+        this._requestFailedTrigger = new Homey.FlowCardTriggerDevice('request_failed');
+        this._requestFailedTrigger
+            .register();
+
         this.scheduleMeasurePower(5);
         this.scheduleMeterPower(10);
     }
@@ -42,6 +47,7 @@ class EliqPulseDevice extends Homey.Device {
             })
             .catch(err => {
                 console.error(err);
+                this._requestFailedTrigger.trigger(this);
                 this.scheduleMeasurePower(60);
             });
     }
@@ -76,6 +82,7 @@ class EliqPulseDevice extends Homey.Device {
             })
             .catch(err => {
                 console.error(err);
+                this._requestFailedTrigger.trigger(this);
                 this.scheduleMeterPower(120);
             });
     }

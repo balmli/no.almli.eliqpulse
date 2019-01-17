@@ -38,6 +38,23 @@
       }
     ]
   },
+  "flow": {
+    "triggers": [
+      {
+        "id": "request_failed",
+        "title": {
+          "en": "Request failed"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=EliqPulse"
+          }
+        ]
+      }
+    ]
+  },
   "drivers": [
     {
       "id": "EliqPulse",
