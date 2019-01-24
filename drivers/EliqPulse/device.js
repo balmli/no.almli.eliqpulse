@@ -17,25 +17,17 @@ class EliqPulseDevice extends Homey.Device {
         this.scheduleMeterPower(10);
     }
 
-    clearMeasurePower() {
-        if (this.timeoutMeasurePower) {
-            clearTimeout(this.timeoutMeasurePower);
-            this.timeoutMeasurePower = undefined;
-        }
-    }
-
     scheduleMeasurePower(seconds) {
-        this.clearMeasurePower();
-        this.timeoutMeasurePower = setTimeout(this.fetchMeasurePower.bind(this), seconds * 1000);
+        setTimeout(this.fetchMeasurePower.bind(this), seconds * 1000);
     }
 
     async fetchMeasurePower() {
-        this.clearMeasurePower();
         let measured_power = await this.calcMeasuredPower();
         this.log('measured_power', measured_power);
 
         pulse.getPulse()
             .then(result => {
+                this.scheduleMeasurePower(10);
                 let total_measure_power = result.WattmeterInit.current;
                 this.log('total_measure_power', total_measure_power);
                 this.setCapabilityValue("measure_power", total_measure_power).catch(console.error);
@@ -43,31 +35,22 @@ class EliqPulseDevice extends Homey.Device {
                 other_measure_power = other_measure_power < 0 ? 0 : other_measure_power;
                 this.log('other_measure_power', other_measure_power);
                 this.setCapabilityValue("other_measure_power", other_measure_power).catch(console.error);
-                this.scheduleMeasurePower(5);
             })
             .catch(err => {
+                this.scheduleMeasurePower(60);
                 console.error(err);
                 this._requestFailedTrigger.trigger(this);
-                this.scheduleMeasurePower(60);
             });
     }
 
-    clearMeterPower() {
-        if (this.timeoutMeterPower) {
-            clearTimeout(this.timeoutMeterPower);
-            this.timeoutMeterPower = undefined;
-        }
-    }
-
     scheduleMeterPower(seconds) {
-        this.clearMeterPower();
-        this.timeoutMeterPower = setTimeout(this.fetchMeterPower.bind(this), seconds * 1000);
+        setTimeout(this.fetchMeterPower.bind(this), seconds * 1000);
     }
 
     async fetchMeterPower() {
-        this.clearMeterPower();
         pulse.getTrends()
             .then(result => {
+                this.scheduleMeterPower(120);
                 let meterPower = null;
                 if (result.data_this_period) {
                     if (result.data_this_period.length > 1) {
@@ -78,12 +61,11 @@ class EliqPulseDevice extends Homey.Device {
                 }
                 this.log('meter_power', meterPower);
                 this.setCapabilityValue("meter_power", meterPower).catch(console.error);
-                this.scheduleMeterPower(120);
             })
             .catch(err => {
+                this.scheduleMeterPower(120);
                 console.error(err);
                 this._requestFailedTrigger.trigger(this);
-                this.scheduleMeterPower(120);
             });
     }
 
