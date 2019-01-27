@@ -67,7 +67,8 @@
         "heating_measure_power",
         "water_measure_power",
         "other_measure_power",
-        "meter_power"
+        "meter_power",
+        "meter_power_yesterday"
       ],
       "capabilitiesOptions": {
         "measure_power": {
@@ -92,28 +93,20 @@
         },
         "meter_power": {
           "title": {
+            "en": "Meter today"
+          },
+          "units": {
+            "en":  "kWh"
+          }
+        },
+        "meter_power_yesterday": {
+          "title": {
             "en": "Meter yesterday"
           },
           "units": {
             "en":  "kWh"
           }
         }
-      },
-      "mobile": {
-        "components": [
-          {
-            "id": "icon",
-            "capabilities": []
-          },
-          {
-            "id": "sensor",
-            "capabilities": [
-              "measure_power",
-              "meter_power",
-              "other_measure_power"
-            ]
-          }
-        ]
       },
       "pair": [
         {
@@ -212,6 +205,33 @@
       },
       "chartType": "stepLine",
       "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    },
+      "meter_power_yesterday": {
+      "type": "number",
+      "title": {
+        "en": "Power meter yesterday"
+      },
+      "units": {
+        "en": "kWh"
+      },
+      "insights": true,
+      "desc": {
+        "en": "Power usage in KiloWattHour (kWh)"
+      },
+      "options": {
+        "isGenerator": {
+          "type": "boolean",
+          "default": false,
+          "desc": {
+            "en": "This flag is used to determine whether this devices uses or generates power."
+          }
+        }
+      },
+      "chartType": "spline",
+      "decimals": 2,
       "getable": true,
       "setable": false,
       "uiComponent": "sensor"

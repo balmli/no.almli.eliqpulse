@@ -9,6 +9,9 @@ class EliqPulseDevice extends Homey.Device {
     onInit() {
         this.log('Device has been initialized', this.getName());
 
+        this._meterToday = 0;
+        this._lastMeterCheck = undefined;
+
         this._requestFailedTrigger = new Homey.FlowCardTriggerDevice('request_failed');
         this._requestFailedTrigger
             .register();
@@ -35,6 +38,20 @@ class EliqPulseDevice extends Homey.Device {
                 other_measure_power = other_measure_power < 0 ? 0 : other_measure_power;
                 this.log('other_measure_power', other_measure_power);
                 this.setCapabilityValue("other_measure_power", other_measure_power).catch(console.error);
+                const now = new Date();
+                if (this._lastMeterCheck !== undefined) {
+                    let lastCheck = this._lastMeterCheck;
+                    if (now.getDate() !== lastCheck.getDate()) {
+                        this._meterToday = 0;
+                        lastCheck = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+                    }
+                    let diff_ms = now.getTime() - lastCheck.getTime();
+                    this._meterToday += (total_measure_power / 1000) * (diff_ms / 3600000);
+                }
+                this._lastMeterCheck = now;
+                const meterToday = Math.round(100 * this._meterToday) / 100;
+                this.log('meterToday', meterToday);
+                this.setCapabilityValue("meter_power", meterToday).catch(console.error);
             })
             .catch(err => {
                 this.scheduleMeasurePower(60);
@@ -59,8 +76,8 @@ class EliqPulseDevice extends Homey.Device {
                         meterPower = result.data_this_period[result.data_this_period.length - 1] / 1000;
                     }
                 }
-                this.log('meter_power', meterPower);
-                this.setCapabilityValue("meter_power", meterPower).catch(console.error);
+                this.log('meter_power_yesterday', meterPower);
+                this.setCapabilityValue("meter_power_yesterday", meterPower).catch(console.error);
             })
             .catch(err => {
                 this.scheduleMeterPower(120);
