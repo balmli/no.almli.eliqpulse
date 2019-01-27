@@ -96,7 +96,7 @@
             "en": "Meter today"
           },
           "units": {
-            "en":  "kWh"
+            "en": "kWh"
           }
         },
         "meter_power_yesterday": {
@@ -104,7 +104,7 @@
             "en": "Meter yesterday"
           },
           "units": {
-            "en":  "kWh"
+            "en": "kWh"
           }
         }
       },
@@ -209,7 +209,7 @@
       "setable": false,
       "uiComponent": "sensor"
     },
-      "meter_power_yesterday": {
+    "meter_power_yesterday": {
       "type": "number",
       "title": {
         "en": "Power meter yesterday"
