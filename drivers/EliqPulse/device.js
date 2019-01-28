@@ -95,7 +95,7 @@ class EliqPulseDevice extends Homey.Device {
         let other_measure_power = 0;
         for (let device in devices) {
             let d = devices[device];
-            if (d.capabilitiesObj.measure_power && d.driverUri !== 'homey:app:no.almli.eliqpulse') {
+            if (d.capabilitiesObj && d.capabilitiesObj.measure_power && d.driverUri !== 'homey:app:no.almli.eliqpulse') {
                 let power = Math.round(100 * d.capabilitiesObj.measure_power.value) / 100;
                 if (d.virtualClass === 'heater' && d.class === 'socket' || d.class === 'thermostat') {
                     heating_measure_power += power;
