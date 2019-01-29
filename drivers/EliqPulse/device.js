@@ -86,27 +86,44 @@ class EliqPulseDevice extends Homey.Device {
             });
     }
 
+    async getApi() {
+        if (!this._api) {
+            this._api = await HomeyAPI.forCurrentHomey();
+        }
+        return this._api;
+    }
+
+    async getDevices() {
+        try {
+            const api = await this.getApi();
+            return await api.devices.getDevices();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     async calcMeasuredPower() {
-        let currentHomey = await HomeyAPI.forCurrentHomey();
-        let devices = await currentHomey.devices.getDevices();
         let heating_measure_power = 0;
         let light_measure_power = 0;
         let water_measure_power = 0;
         let other_measure_power = 0;
-        for (let device in devices) {
-            let d = devices[device];
-            if (d.capabilitiesObj && d.capabilitiesObj.measure_power && d.driverUri !== 'homey:app:no.almli.eliqpulse') {
-                let power = Math.round(100 * d.capabilitiesObj.measure_power.value) / 100;
-                if (d.virtualClass === 'heater' && d.class === 'socket' || d.class === 'thermostat') {
-                    heating_measure_power += power;
-                } else if (d.virtualClass === 'light' && d.class === 'socket') {
-                    light_measure_power += power;
-                } else if (d.name === 'Varmtvann' && d.class === 'socket') {
-                    water_measure_power += power;
-                } else {
-                    other_measure_power += power;
+        let devices = await this.getDevices();
+        if (devices) {
+            for (let device in devices) {
+                let d = devices[device];
+                if (d.capabilitiesObj && d.capabilitiesObj.measure_power && d.driverUri !== 'homey:app:no.almli.eliqpulse') {
+                    let power = Math.round(100 * d.capabilitiesObj.measure_power.value) / 100;
+                    if (d.virtualClass === 'heater' && d.class === 'socket' || d.class === 'thermostat') {
+                        heating_measure_power += power;
+                    } else if (d.virtualClass === 'light' && d.class === 'socket') {
+                        light_measure_power += power;
+                    } else if (d.name === 'Varmtvann' && d.class === 'socket') {
+                        water_measure_power += power;
+                    } else {
+                        other_measure_power += power;
+                    }
+                    //console.log(d.name, d.virtualClass, d.class, d.capabilitiesObj.measure_power.value);
                 }
-                //console.log(d.name, d.virtualClass, d.class, d.capabilitiesObj.measure_power.value);
             }
         }
         this.setCapabilityValue("heating_measure_power", heating_measure_power).catch(console.error);
