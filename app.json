@@ -64,9 +64,9 @@
       "class": "other",
       "capabilities": [
         "measure_power",
-        "heating_measure_power",
-        "water_measure_power",
-        "other_measure_power",
+        "measure_power_heating",
+        "measure_power_water",
+        "measure_power_other",
         "meter_power",
         "meter_power_yesterday"
       ],
@@ -76,17 +76,17 @@
             "en": "Total"
           }
         },
-        "heating_measure_power": {
+        "measure_power_heating": {
           "title": {
             "en": "Heating"
           }
         },
-        "water_measure_power": {
+        "measure_power_water": {
           "title": {
             "en": "Water"
           }
         },
-        "other_measure_power": {
+        "measure_power_other": {
           "title": {
             "en": "Other"
           }
@@ -128,7 +128,7 @@
     }
   ],
   "capabilities": {
-    "heating_measure_power": {
+    "measure_power_heating": {
       "type": "number",
       "title": {
         "en": "Heating"
@@ -155,7 +155,7 @@
       "setable": false,
       "uiComponent": "sensor"
     },
-    "water_measure_power": {
+    "measure_power_water": {
       "type": "number",
       "title": {
         "en": "Water"
@@ -182,7 +182,7 @@
       "setable": false,
       "uiComponent": "sensor"
     },
-    "other_measure_power": {
+    "measure_power_other": {
       "type": "number",
       "title": {
         "en": "Other"

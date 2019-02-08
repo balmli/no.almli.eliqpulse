@@ -31,13 +31,13 @@ class EliqPulseDevice extends Homey.Device {
         pulse.getPulse()
             .then(result => {
                 this.scheduleMeasurePower(10);
-                let total_measure_power = result.WattmeterInit.current;
-                this.log('total_measure_power', total_measure_power);
-                this.setCapabilityValue("measure_power", total_measure_power).catch(console.error);
-                let other_measure_power = total_measure_power - measured_power.heating - measured_power.water;
-                other_measure_power = other_measure_power < 0 ? 0 : other_measure_power;
-                this.log('other_measure_power', other_measure_power);
-                this.setCapabilityValue("other_measure_power", other_measure_power).catch(console.error);
+                let measure_power_total = result.WattmeterInit.current;
+                this.log('measure_power_total', measure_power_total);
+                this.setCapabilityValue("measure_power", measure_power_total).catch(console.error);
+                let measure_power_other = measure_power_total - measured_power.heating - measured_power.water;
+                measure_power_other = measure_power_other < 0 ? 0 : measure_power_other;
+                this.log('measure_power_other', measure_power_other);
+                this.setCapabilityValue("measure_power_other", measure_power_other).catch(console.error);
                 const now = new Date();
                 if (this._lastMeterCheck !== undefined) {
                     let lastCheck = this._lastMeterCheck;
@@ -46,7 +46,7 @@ class EliqPulseDevice extends Homey.Device {
                         lastCheck = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
                     }
                     let diff_ms = now.getTime() - lastCheck.getTime();
-                    this._meterToday += (total_measure_power / 1000) * (diff_ms / 3600000);
+                    this._meterToday += (measure_power_total / 1000) * (diff_ms / 3600000);
                 }
                 this._lastMeterCheck = now;
                 const meterToday = Math.round(100 * this._meterToday) / 100;
@@ -103,10 +103,10 @@ class EliqPulseDevice extends Homey.Device {
     }
 
     async calcMeasuredPower() {
-        let heating_measure_power = 0;
-        let light_measure_power = 0;
-        let water_measure_power = 0;
-        let other_measure_power = 0;
+        let measure_power_heating = 0;
+        let measure_power_light = 0;
+        let measure_power_water = 0;
+        let measure_power_other = 0;
         let devices = await this.getDevices();
         if (devices) {
             for (let device in devices) {
@@ -114,25 +114,25 @@ class EliqPulseDevice extends Homey.Device {
                 if (d.capabilitiesObj && d.capabilitiesObj.measure_power && d.driverUri !== 'homey:app:no.almli.eliqpulse') {
                     let power = Math.round(100 * d.capabilitiesObj.measure_power.value) / 100;
                     if (d.virtualClass === 'heater' && d.class === 'socket' || d.class === 'thermostat') {
-                        heating_measure_power += power;
+                        measure_power_heating += power;
                     } else if (d.virtualClass === 'light' && d.class === 'socket') {
-                        light_measure_power += power;
+                        measure_power_light += power;
                     } else if (d.name === 'Varmtvann' && d.class === 'socket') {
-                        water_measure_power += power;
+                        measure_power_water += power;
                     } else {
-                        other_measure_power += power;
+                        measure_power_other += power;
                     }
                     //console.log(d.name, d.virtualClass, d.class, d.capabilitiesObj.measure_power.value);
                 }
             }
         }
-        this.setCapabilityValue("heating_measure_power", heating_measure_power).catch(console.error);
-        this.setCapabilityValue("water_measure_power", water_measure_power).catch(console.error);
+        this.setCapabilityValue("measure_power_heating", measure_power_heating).catch(console.error);
+        this.setCapabilityValue("measure_power_water", measure_power_water).catch(console.error);
         return {
-            heating: heating_measure_power,
-            light: light_measure_power,
-            water: water_measure_power,
-            other: other_measure_power
+            heating: measure_power_heating,
+            light: measure_power_light,
+            water: measure_power_water,
+            other: measure_power_other
         };
     }
 
