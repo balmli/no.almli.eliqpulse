@@ -10,6 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "http.min": "1.3.2",
-    "athom-api": "^2.1.147"
+    "athom-api": "^2.1.181"
   }
 }
