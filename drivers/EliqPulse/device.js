@@ -17,7 +17,6 @@ class EliqPulseDevice extends Homey.Device {
             .register();
 
         this.scheduleMeasurePower(5);
-        this.scheduleMeterPower(10);
     }
 
     scheduleMeasurePower(seconds) {
@@ -42,6 +41,7 @@ class EliqPulseDevice extends Homey.Device {
                 if (this._lastMeterCheck !== undefined) {
                     let lastCheck = this._lastMeterCheck;
                     if (now.getDate() !== lastCheck.getDate()) {
+                        this.setCapabilityValue("meter_power_yesterday", this._meterToday).catch(console.error);
                         this._meterToday = 0;
                         lastCheck = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
                     }
@@ -55,32 +55,6 @@ class EliqPulseDevice extends Homey.Device {
             })
             .catch(err => {
                 this.scheduleMeasurePower(60);
-                console.error(err);
-                this._requestFailedTrigger.trigger(this);
-            });
-    }
-
-    scheduleMeterPower(seconds) {
-        setTimeout(this.fetchMeterPower.bind(this), seconds * 1000);
-    }
-
-    async fetchMeterPower() {
-        pulse.getTrends()
-            .then(result => {
-                this.scheduleMeterPower(120);
-                let meterPower = null;
-                if (result.data_this_period) {
-                    if (result.data_this_period.length > 1) {
-                        meterPower = result.data_this_period[result.data_this_period.length - 2] / 1000;
-                    } else if (result.data_this_period.length > 0) {
-                        meterPower = result.data_this_period[result.data_this_period.length - 1] / 1000;
-                    }
-                }
-                this.log('meter_power_yesterday', meterPower);
-                this.setCapabilityValue("meter_power_yesterday", meterPower).catch(console.error);
-            })
-            .catch(err => {
-                this.scheduleMeterPower(120);
                 console.error(err);
                 this._requestFailedTrigger.trigger(this);
             });
