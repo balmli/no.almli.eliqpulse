@@ -23,6 +23,10 @@ class EliqPulseDevice extends Homey.Device {
         setTimeout(this.fetchMeasurePower.bind(this), seconds * 1000);
     }
 
+    getMeasurePower() {
+        return this.getCapabilityValue("measure_power");
+    }
+
     async fetchMeasurePower() {
         let measured_power = await this.calcMeasuredPower();
         this.log('measured_power', measured_power);
