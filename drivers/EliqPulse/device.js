@@ -1,7 +1,6 @@
 'use strict';
 
 const Homey = require('homey'),
-    {HomeyAPI} = require('athom-api'),
     pulse = require('../../lib/pulse');
 
 class EliqPulseDevice extends Homey.Device {
@@ -28,19 +27,13 @@ class EliqPulseDevice extends Homey.Device {
     }
 
     async fetchMeasurePower() {
-        let measured_power = await this.calcMeasuredPower();
-        this.log('measured_power', measured_power);
-
         pulse.getPulse()
             .then(result => {
                 this.scheduleMeasurePower(10);
                 let measure_power_total = result.WattmeterInit.current;
                 this.log('measure_power_total', measure_power_total);
                 this.setCapabilityValue("measure_power", measure_power_total).catch(console.error);
-                let measure_power_other = measure_power_total - measured_power.heating - measured_power.water;
-                measure_power_other = measure_power_other < 0 ? 0 : measure_power_other;
-                this.log('measure_power_other', measure_power_other);
-                this.setCapabilityValue("measure_power_other", measure_power_other).catch(console.error);
+
                 const now = new Date();
                 if (this._lastMeterCheck !== undefined) {
                     let lastCheck = this._lastMeterCheck;
@@ -62,56 +55,6 @@ class EliqPulseDevice extends Homey.Device {
                 console.error(err);
                 this._requestFailedTrigger.trigger(this);
             });
-    }
-
-    async getApi() {
-        if (!this._api) {
-            this._api = await HomeyAPI.forCurrentHomey();
-        }
-        return this._api;
-    }
-
-    async getDevices() {
-        try {
-            const api = await this.getApi();
-            return await api.devices.getDevices();
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    async calcMeasuredPower() {
-        let measure_power_heating = 0;
-        let measure_power_light = 0;
-        let measure_power_water = 0;
-        let measure_power_other = 0;
-        let devices = await this.getDevices();
-        if (devices) {
-            for (let device in devices) {
-                let d = devices[device];
-                if (d.capabilitiesObj && d.capabilitiesObj.measure_power && d.driverUri !== 'homey:app:no.almli.eliqpulse') {
-                    let power = Math.round(100 * d.capabilitiesObj.measure_power.value) / 100;
-                    if (d.virtualClass === 'heater' && d.class === 'socket' || d.class === 'thermostat') {
-                        measure_power_heating += power;
-                    } else if (d.virtualClass === 'light' && d.class === 'socket') {
-                        measure_power_light += power;
-                    } else if (d.name === 'Varmtvann' && d.class === 'socket') {
-                        measure_power_water += power;
-                    } else {
-                        measure_power_other += power;
-                    }
-                    //console.log(d.name, d.virtualClass, d.class, d.capabilitiesObj.measure_power.value);
-                }
-            }
-        }
-        this.setCapabilityValue("measure_power_heating", measure_power_heating).catch(console.error);
-        this.setCapabilityValue("measure_power_water", measure_power_water).catch(console.error);
-        return {
-            heating: measure_power_heating,
-            light: measure_power_light,
-            water: measure_power_water,
-            other: measure_power_other
-        };
     }
 
 }
