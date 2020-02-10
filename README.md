@@ -8,7 +8,7 @@ https://chrome.google.com/webstore/detail/cookiestxt/njabckikapfpffapmjgojcnbfjo
 
 2. Log on to https://my.eliq.io.  Then copy the cookies by clicking on the "cooies.txt" extension. 
 
-3. Paste the cookies to `env_templ.js` where it says `<-- cookies here -->`.
+3. Paste the cookies to `env_templ.js` where it says `<-- cookies here -->`.  Add '\n' to the end of each line, and it must be a valid JavaScript file.
 
 4. Rename `env_templ.js` to `env.js`.
 
